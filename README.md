@@ -203,3 +203,4 @@ This project is for personal use only. Please ensure compliance with all relevan
 ---
 
 **⚠️ Disclaimer**: This bot is for educational and personal use only. Always do your own research before making any trading decisions. Cryptocurrency trading involves significant risk.
+# meme-trading-bot
