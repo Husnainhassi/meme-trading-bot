@@ -402,29 +402,47 @@ class ComprehensiveTokenScorer:
         strengths = []
         print("\n[Market Dynamics & Trading Metrics Scoring]")
         try:
-            # --- Explosive Volume Surge (6 pts) ---
+            # --- IMPROVED Explosive Volume Surge Detection (8 pts) ---
+            # Based on experiment: need to catch surges in first 15-30 minutes
             volume_24h = token_data.get('volume_24h_usd', 0)
             volume_1h = token_data.get('volume_1h_usd', 0)
+            volume_5m = token_data.get('volume_5m_usd', 0)  # Need 5-minute volume data
             market_cap = token_data.get('market_cap_usd', 1)
 
-            if volume_1h > 0 and volume_24h > 0:
-                hourly_acceleration = (volume_1h * 24) / volume_24h
-                if hourly_acceleration > 5:
+            # Priority 1: 5-minute volume explosion (early detection)
+            if volume_5m > 0 and volume_1h > 0:
+                five_min_acceleration = (volume_5m * 12) / volume_1h  # 5min * 12 = hourly rate
+                if five_min_acceleration > 10:
+                    score += 8
+                    print("🚨 EARLY VOLUME EXPLOSION: +8 (10x+ in last 5 minutes)")
+                    strengths.append("🚨 VOLUME EXPLOSION - EARLY DETECTION (10x+ surge)")
+                elif five_min_acceleration > 5:
                     score += 6
-                    print("Volume acceleration: +6 (>5x in last hour)")
-                    strengths.append("🚀 VOLUME EXPLOSION - Volume accelerating 5x+")
-                elif hourly_acceleration > 3:
+                    print("Volume surge (5min): +6 (5x+ in last 5 minutes)")
+                    strengths.append("🔥 Early volume surge detected (5x+)")
+                elif five_min_acceleration > 3:
                     score += 4
-                    print("Volume acceleration: +4 (>3x in last hour)")
-                    strengths.append("🔥 Massive volume surge - 3x acceleration")
-                elif hourly_acceleration > 1.7:
+                    print("Volume surge (5min): +4 (3x+ in last 5 minutes)")
+                    strengths.append("� Strong early volume surge (3x+)")
+            
+            # Priority 2: Hourly acceleration (secondary indicator)
+            elif volume_1h > 0 and volume_24h > 0:
+                hourly_acceleration = (volume_1h * 24) / volume_24h
+                if hourly_acceleration > 15:
+                    score += 6
+                    print("Volume acceleration: +6 (>15x in last hour - LATE but strong)")
+                    strengths.append("� MASSIVE hourly volume acceleration (15x+)")
+                elif hourly_acceleration > 8:
+                    score += 4
+                    print("Volume acceleration: +4 (>8x in last hour)")
+                    strengths.append("� Strong hourly volume acceleration (8x+)")
+                elif hourly_acceleration > 3:
                     score += 2
-                    print("Volume acceleration: +2 (>1.7x in last hour)")
-                    strengths.append("📈 Strong volume acceleration")
-                elif hourly_acceleration > 1.1:
-                    score += 1
-                    print("Volume acceleration: +1 (>1.1x in last hour)")
-                    strengths.append("🔎 Noticeable volume uptick")
+                    print("Volume acceleration: +2 (>3x in last hour)")
+                    strengths.append("� Decent volume acceleration")
+                else:
+                    print("Volume acceleration: 0 (Insufficient surge)")
+                    flags.append("weak_volume_surge")
             # --- Volume Intensity (4 pts) ---
             if market_cap > 0:
                 volume_intensity = volume_24h / market_cap

@@ -15,7 +15,8 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.discovery.dexscreener import fetch_boosted_tokens, fetch_pairs
+# from src.discovery.dexscreener import fetch_boosted_tokens, fetch_pairs
+from src.discovery.dexscreener import fetch_latest_tokens, fetch_pairs
 from src.security.honeypot_check import analyze_token_safety
 from src.scoring.comprehensive_scorer import ComprehensiveTokenScorer
 from src.discovery.enhanced_discovery import EnhancedTokenDiscovery
@@ -98,26 +99,27 @@ class MemeBot:
         # print(f"\n🔍 Starting scan at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
         try:
-            print("📡 Fetching boosted tokens...")
-            boosted_tokens = []
+            print("📡 Fetching latest tokens...")
+            latest_tokens = []
             
             try:
-                boosted_tokens = fetch_boosted_tokens()
+                latest_tokens = fetch_latest_tokens()  # NEW: Fresh tokens instead of boosted
+                # For rollback: latest_tokens = fetch_boosted_tokens()  # OLD: Already trending tokens
             except Exception as api_err:
-                print(f"❌ Error fetching boosted tokens: {api_err}")
+                print(f"❌ Error fetching latest tokens: {api_err}")
                 
-            print(f"Found {len(boosted_tokens)} boosted tokens")
-            if len(boosted_tokens) < 10:
-                print(f"⚠️ Warning: Only {len(boosted_tokens)} tokens fetched. This may indicate an API issue, rate limit, or config problem.")
-            if not boosted_tokens:
+            print(f"Found {len(latest_tokens)} latest tokens")
+            if len(latest_tokens) < 10:
+                print(f"⚠️ Warning: Only {len(latest_tokens)} tokens fetched. This may indicate an API issue, rate limit, or config problem.")
+            if not latest_tokens:
                 print("❌ No tokens discovered. Check API keys, network, or API status.")
                 return []
 
             analyzed_tokens = []
             signals_generated = 0
             errors_encountered = 0
-            for i, token_address in enumerate(boosted_tokens, 1):
-                print(f"\n🔬 Analyzing token {i}/{len(boosted_tokens)}: {token_address}")
+            for i, token_address in enumerate(latest_tokens, 1):
+                print(f"\n🔬 Analyzing token {i}/{len(latest_tokens)}: {token_address}")
                 try:
                     pairs = []
                     try:
@@ -247,7 +249,8 @@ class MemeBot:
                         
                         if self.telegram_bot:
                             try:
-                                await self._send_trading_signal(signal_data)
+                                # await self._send_trading_signal(signal_data)
+                                print("")
                             except Exception as tg_err:
                                 print(f"  ⚠️ Error sending Telegram signal: {tg_err}")
                     else:
@@ -289,7 +292,7 @@ class MemeBot:
                     errors_encountered += 1
                     continue
             
-            print(f"\n✅ Scan completed: {signals_generated} signals generated from {len(boosted_tokens)} tokens")
+            print(f"\n✅ Scan completed: {signals_generated} signals generated from {len(latest_tokens)} tokens")
             if self.paper_trading:
                 print("\n==== PAPER TRADING SUMMARY ====")
                 print(f"USD Balance: ${self.paper_usd_balance:.2f}")
@@ -304,7 +307,7 @@ class MemeBot:
                 print("==============================\n")
             if errors_encountered > 0:
                 print(f"⚠️ {errors_encountered} errors encountered during scan. Check logs above for details.")
-            if signals_generated == 0 and len(boosted_tokens) > 0:
+            if signals_generated == 0 and len(latest_tokens) > 0:
                 print(f"⚠️ No signals generated. All tokens may have failed scoring, been filtered, or encountered errors.")
             return analyzed_tokens
         except Exception as e:

@@ -26,10 +26,10 @@ DB_NAME = os.getenv("DB_NAME", "meme_trading_bot")
 SCAN_INTERVAL_MINUTES = int(os.getenv("SCAN_INTERVAL_MINUTES", "5"))   # Every 5 minutes - memes move FAST
 BOT_MODE = os.getenv("BOT_MODE", "continuous")  # Continuous scanning essential for catching pumps
 
-# Trading thresholds - MEME COIN OPTIMIZED PARAMETERS
-MIN_BOOM_SCORE = float(os.getenv("MIN_BOOM_SCORE", "20"))  # Lower threshold - catch early momentum
-MIN_LIQUIDITY_USD = float(os.getenv("MIN_LIQUIDITY_USD", "1000"))  # Ultra-low for early detection
-MAX_RISK_SCORE = float(os.getenv("MAX_RISK_SCORE", "90"))  # High tolerance - memes are inherently risky
+# Trading thresholds
+MIN_BOOM_SCORE = float(os.getenv("MIN_BOOM_SCORE", "20"))
+MIN_LIQUIDITY_USD = float(os.getenv("MIN_LIQUIDITY_USD", "1000"))
+MAX_RISK_SCORE = float(os.getenv("MAX_RISK_SCORE", "90"))
 
 # Comprehensive Scoring Thresholds - CALIBRATED FOR MEME ECOSYSTEM
 TIER_A_THRESHOLD = float(os.getenv("TIER_A_THRESHOLD", "40"))  # Premium meme coins with strong signals

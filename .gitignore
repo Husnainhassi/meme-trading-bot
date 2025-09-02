@@ -22,7 +22,7 @@ wheels/
 MANIFEST
 
 # Environment files
-.env
+# .env
 *.db
 *.sqlite
 *.sqlite3
